@@ -1,8 +1,18 @@
 import { app, BrowserWindow } from 'electron';
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
+
+function resolveUiEntry(): string {
+  const builtUiPath = join(currentDir, '../ui/index.html');
+  if (existsSync(builtUiPath)) {
+    return builtUiPath;
+  }
+
+  return join(currentDir, '../../src/ui/index.html');
+}
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -13,7 +23,7 @@ function createWindow(): void {
     }
   });
 
-  win.loadFile(join(currentDir, '../ui/index.html'));
+  win.loadFile(resolveUiEntry());
 }
 
 app.whenReady().then(() => {
