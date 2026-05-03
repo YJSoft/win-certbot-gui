@@ -18,6 +18,11 @@ function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    webPreferences: {
+      preload: join(currentDir, '../preload/electron-preload.js'),
+      contextIsolation: true,
+      sandbox: false
+    }
   });
 
   win.loadFile(resolveUiEntry());
