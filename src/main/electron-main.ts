@@ -1,16 +1,31 @@
 import { app, BrowserWindow } from 'electron';
-import { join } from 'node:path';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
+
+function resolveUiEntry(): string {
+  const builtUiPath = join(currentDir, '../ui/index.html');
+  if (existsSync(builtUiPath)) {
+    return builtUiPath;
+  }
+
+  return join(currentDir, '../../src/ui/index.html');
+}
 
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: join(__dirname, '../preload/electron-preload.js')
+      preload: join(currentDir, '../preload/electron-preload.js'),
+      contextIsolation: true,
+      sandbox: false
     }
   });
 
-  win.loadFile(join(__dirname, '../ui/index.html'));
+  win.loadFile(resolveUiEntry());
 }
 
 app.whenReady().then(() => {
