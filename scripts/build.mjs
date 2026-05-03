@@ -6,8 +6,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const tscCliPath = resolve(rootDir, 'node_modules/typescript/bin/tsc');
 
-await execFileAsync('npx', ['tsc', '-p', 'tsconfig.json'], { cwd: rootDir });
+await execFileAsync(process.execPath, [tscCliPath, '-p', 'tsconfig.json'], { cwd: rootDir });
 
 const distUiDir = resolve(rootDir, 'dist/ui');
 await mkdir(distUiDir, { recursive: true });
