@@ -1,0 +1,28 @@
+appId: com.wincertbot.gui
+productName: WinCertbot Manager
+files:
+  - dist/**
+  - package.json
+asar: true
+publish:
+  provider: github
+  releaseType: draft
+mac:
+  target:
+    - dmg
+  category: public.app-category.utilities
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  notarize: false
+  identity: ${env.CSC_NAME}
+win:
+  target:
+    - nsis
+  artifactName: ${productName}-${version}-win-${arch}.${ext}
+  signingHashAlgorithms:
+    - sha256
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
