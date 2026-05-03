@@ -24,15 +24,39 @@ async function saveSettings() {
 }
 
 async function createAcmeAccount() {
-  statusText = 'ACME 계정 기능은 준비 중입니다';
-  accountKid = '준비 중';
+  statusText = 'ACME 계정 생성 중...';
+  render();
+  try {
+    const result = await api.createAcmeAccount({
+      directoryUrl: settingsState.acmeDirectoryUrl || 'https://acme-staging-v02.api.letsencrypt.org/directory',
+      email: 'admin@example.com',
+      acceptTos: true
+    });
+    accountKid = result.kid;
+    statusText = 'ACME 계정 준비 완료';
+  } catch (error) {
+    statusText = `계정 생성 실패: ${(error as Error).message}`;
+  }
   render();
 }
 
-async function runHttpPrecheck() { statusText = 'HTTP 사전 확인 기능은 준비 중입니다'; render(); }
-async function runDnsCheck() { statusText = 'DNS 전파 확인 기능은 준비 중입니다'; render(); }
+async function runHttpPrecheck() {
+  statusText = 'HTTP 사전 확인 중...';
+  render();
+  const result = await api.runHttpPrecheck({ domain: 'example.com', token: 'sample-token', keyAuthorization: 'sample-key-auth' });
+  statusText = result.ok ? 'HTTP 접근 확인 성공' : `HTTP 실패: ${result.reason ?? 'UNKNOWN'}`;
+  render();
+}
 
-function render() { /* unchanged template */
+async function runDnsCheck() {
+  statusText = 'DNS 전파 확인 중...';
+  render();
+  const result = await api.runDnsCheck({ domain: 'example.com', txtValue: 'txt-value' });
+  statusText = result.propagated ? 'DNS 전파 확인 성공' : 'DNS 전파 대기(재시도 가능)';
+  render();
+}
+
+function render() {
   app.innerHTML = `
     <nav><h3>WinCertbot</h3><button data-page="dashboard">대시보드</button><button data-page="wizard">새 인증서 발급</button><button data-page="settings">설정</button><button data-page="logs">로그/진단</button><hr/><small>상태: ${statusText}</small></nav>
     <main>${pageContent()}</main>`;
